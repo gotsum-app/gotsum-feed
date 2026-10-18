@@ -1,0 +1,43 @@
+# 근처 행사 피드: 매일 새벽 공공데이터를 받아 GitHub Pages 에 올린다 (무료).
+# 사용법: 공개 저장소(예: gotsum-feed)를 만들고, 이 파일을 .github/workflows/feed.yml 로 넣는다.
+#        build.ts 와 src/domain/events.ts 도 같은 구조로 복사한다 (events-feed/README.md 참고).
+# 저장소 Settings → Secrets → Actions 에 SEOUL_API_KEY 를 넣는다 (키는 코드에 쓰지 않음).
+name: feed
+
+on:
+  schedule:
+    - cron: '0 18 * * *' # 매일 한국시간 03:00
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node events-feed/build.ts
+        env:
+          SEOUL_API_KEY: ${{ secrets.SEOUL_API_KEY }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: events-feed/out
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
