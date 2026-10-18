@@ -18,6 +18,42 @@ export const TAG_KEYWORDS: Record<InterestTag, string[]> = {
   family: ['가족', '어린이', '아이와', '부모', '키즈', '유아', '아동'],
 };
 
+/**
+ * 행사 세부 구분 (화면에 '운동 · 러닝', '독서 · 도서관 프로그램' 처럼 표시).
+ * 위에서부터 먼저 맞는 것. 아무것도 안 맞으면 'other'. 이름은 i18n 의 eventKind.{kind}
+ */
+export const EVENT_KINDS: Record<InterestTag, { kind: string; keywords: string[] }[]> = {
+  exercise: [
+    { kind: 'running', keywords: ['마라톤', '러닝', '달리기', '러너'] },
+    { kind: 'walking', keywords: ['걷기', '트레킹', '등산', '산책', '탐방'] },
+    { kind: 'yoga', keywords: ['요가', '필라테스', '명상', '스트레칭'] },
+    { kind: 'cycling', keywords: ['자전거', '라이딩'] },
+    { kind: 'swimming', keywords: ['수영'] },
+    { kind: 'dance', keywords: ['댄스', '줌바', '춤'] },
+  ],
+  reading: [
+    { kind: 'bookTalk', keywords: ['북토크', '북콘서트', '작가와', '작가 강연'] },
+    { kind: 'bookClub', keywords: ['독서토론', '독서 토론', '독서모임', '독서 모임', '읽기 모임', '함께 읽는'] },
+    { kind: 'writing', keywords: ['낭독', '필사', '글쓰기', '시 쓰기'] },
+    { kind: 'bookFair', keywords: ['책마당', '책 축제', '북페어', '도서전', '야외도서관'] },
+    { kind: 'library', keywords: ['도서관'] },
+  ],
+  study: [
+    { kind: 'lecture', keywords: ['강연', '특강', '토크'] },
+    { kind: 'class', keywords: ['클래스', '강좌', '워크숍', '아카데미'] },
+    { kind: 'seminar', keywords: ['세미나', '포럼', '컨퍼런스'] },
+    { kind: 'education', keywords: ['교육', '자격'] },
+  ],
+  family: [
+    { kind: 'kids', keywords: ['어린이', '키즈', '유아', '아동', '아이와'] },
+    { kind: 'family', keywords: ['가족', '부모'] },
+  ],
+};
+
+export function eventKind(title: string, tag: InterestTag): string {
+  return EVENT_KINDS[tag].find((k) => k.keywords.some((w) => title.includes(w)))?.kind ?? 'other';
+}
+
 export function tagText(text: string): InterestTag[] {
   return INTEREST_TAGS.filter((tag) => TAG_KEYWORDS[tag].some((k) => text.includes(k)));
 }
